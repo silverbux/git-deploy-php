@@ -13,16 +13,12 @@
  *
  */
 
-// set github "secret" pass here
-$secret_pass = 'put_password_here';
-$app_name = 'Your_App_Name_Here';
-
-// a simple way to restrict user
-if(empty($_POST['secret']) || $_POST['secret'] != $secret_pass)
-  die('You dont have permission to this page.');
-
 class GitDeploy
 {
+  var $allow_get_authenticate = true; // authenticate via $_GET['secret']
+  var $secret_pass = 'put_password_here';
+  var $app_name = 'Your_App_Name_Here';
+
   var $inital_command;
   var $allowed_commands;
   var $end_command;
@@ -30,6 +26,8 @@ class GitDeploy
   // set stuff here
   function __construct()
   {
+    $this->authenticate();
+
     // set all the commands you will use here.
     $this->allowed_commands = array(
         'echo $PWD',
@@ -47,6 +45,25 @@ class GitDeploy
     $this->end_command = array(
         'git status'
       );
+  }
+
+  function authenticate()
+  {
+    $secret_pass = $this->secret_pass;
+    $allow = false;
+
+    if($this->allow_get_authenticate)
+    {
+      if(isset($_GET['secret']) && $_GET['secret'] == $secret_pass)
+        $allow = true;
+    }
+
+    if(isset($_POST['secret']) && $_POST['secret'] == $secret_pass)
+        $allow = true;
+
+    if(!$allow)
+      die('You dont have access to this page');
+
   }
 
   function go()
