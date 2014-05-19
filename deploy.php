@@ -13,12 +13,12 @@
  *
  */
 
-// set your desired password here
+// set github "secret" pass here
 $secret_pass = 'put_password_here';
 $app_name = 'Your_App_Name_Here';
 
 // a simple way to restrict user
-if(empty($_GET['pass']) || $_GET['pass'] != $secret_pass)
+if(empty($_POST['secret']) || $_POST['secret'] != $secret_pass)
   die('You dont have permission to this page.');
 
 class GitDeploy
@@ -94,7 +94,7 @@ class GitDeploy
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Deploying <?php echo $app_name?></title>
+<title>Deploying <?=$app_name?></title>
 <style>
   body{background-color: #292C37; color: #8DDCD1; padding: 0 20px;}
   pre {color:#8DDCD1}
