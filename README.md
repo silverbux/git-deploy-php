@@ -15,7 +15,7 @@ http://yourdomain.com/deploy.php?pass=YOUR_PASSWORD
 http://domain.com/deploy.php?pass=YOUR_PASSWORD&c=php artisan migrate
 ```
 
-###Laravel Migrate and DB Seet
+###Laravel Migrate and DB Seed
 
 ```
 http://domain.com/deploy.php?pass=YOUR_PASSWORD&c=php artisan migrate,php artisan db:seed
