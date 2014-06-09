@@ -12,7 +12,6 @@
  * http://domain.com/deploy.php?pass=put_password_here&c=php artisan migrate,php artisan db:seed
  *
  */
-
 class GitDeploy
 {
   var $allow_get_authenticate = true; // authenticate via $_GET['secret']
