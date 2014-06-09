@@ -62,7 +62,10 @@ class GitDeploy
         $allow = true;
 
     if(!$allow)
-      die('You dont have access to this page');
+    {
+      header('HTTP/1.0 401 Unauthorized');
+      die('401 Unauthorized');
+    }
 
   }
 
@@ -107,11 +110,14 @@ class GitDeploy
   }
 }
 ?>
+<?php
+$g = new GitDeploy;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Deploying <?=$app_name?></title>
+<title>Deploying <?php echo $g->app_name; ?></title>
 <style>
   body{background-color: #292C37; color: #8DDCD1; padding: 0 20px;}
   pre {color:#8DDCD1}
@@ -123,7 +129,6 @@ class GitDeploy
 <body>
 <pre>
 <?php
-$g = new GitDeploy;
 $g->go();
 ?>
 </pre>
