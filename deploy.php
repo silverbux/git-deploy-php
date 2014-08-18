@@ -15,102 +15,106 @@
 
 class GitDeploy
 {
-  var $allow_get_authenticate = true; // authenticate via $_GET['secret']
-  var $secret_pass = 'put_password_here';
-  var $app_name = 'Your_App_Name_Here';
+    var $allow_get_authenticate = true; // authenticate via $_GET['secret']
+    var $secret_pass = 'put_password_here';
+    var $app_name = 'Your_App_Name_Here';
 
-  var $inital_command;
-  var $allowed_commands;
-  var $end_command;
+    var $inital_command;
+    var $allowed_commands;
+    var $end_command;
 
-  // set stuff here
-  function __construct()
-  {
-    $this->authenticate();
-
-    // set all the commands you will use here.
-    $this->allowed_commands = array(
-        'echo $PWD',
-        'whoami',
-        'git pull',
-        'git status'
-      );
-    // commands to execute at the beginning
-    $this->initial_commands = array(
-        'echo $PWD',
-        'whoami',
-        'git pull',
-      );
-    // commands to execute after initial commands and user commands ($_GET['c'])
-    $this->end_command = array(
-        'git status'
-      );
-  }
-
-  function authenticate()
-  {
-    $secret_pass = $this->secret_pass;
-    $allow = false;
-
-    if($this->allow_get_authenticate)
+    // set stuff here
+    function __construct()
     {
-      if(isset($_GET['secret']) && $_GET['secret'] == $secret_pass)
-        $allow = true;
+        $this->authenticate();
+
+        // set all the commands you will use here.
+        $this->allowed_commands = array(
+            'echo $PWD',
+            'whoami',
+            'git pull',
+            'git status',
+            'git reset --hard',
+            'git clean -dfx'
+        );
+
+        // commands to execute at the beginning
+        $this->initial_commands = array(
+            'echo $PWD',
+            'whoami',
+            'git reset --hard',
+            'git clean -dfx',
+            'git pull',
+        );
+
+        // commands to execute after initial commands and user commands ($_GET['c'])
+        $this->end_command = array(
+            'git status'
+        );
     }
 
-    if(isset($_POST['secret']) && $_POST['secret'] == $secret_pass)
-        $allow = true;
-
-    if(!$allow)
+    function authenticate()
     {
-      header('HTTP/1.0 401 Unauthorized');
-      die('401 Unauthorized');
+        $secret_pass = $this->secret_pass;
+        $allow = false;
+
+        if($this->allow_get_authenticate)
+        {
+            if(isset($_GET['secret']) && $_GET['secret'] == $secret_pass)
+                $allow = true;
+        }
+
+        if(isset($_POST['secret']) && $_POST['secret'] == $secret_pass)
+            $allow = true;
+
+        if(!$allow)
+        {
+            header('HTTP/1.0 401 Unauthorized');
+            die('401 Unauthorized');
+        }
     }
 
-  }
-
-  function go()
-  {
-    $commands = $this->build_commands();
-
-    foreach($commands AS $command)
+    function go()
     {
-      printf("<span>$</span> <span class=\"cmd\">%s\n</span>",$command);
+        $commands = $this->build_commands();
 
-      if($this->is_command_allowed($command))
-      {
-        $sh_exec = htmlentities(trim(shell_exec($command)));
-        printf("  %s \n",$sh_exec);
-      } else
-      {
-        printf("  <span class=\"cmd-error\">Error: \"%s\" Command Not allowed </span>\n",$command);
-      }
+        foreach($commands AS $command)
+        {
+            printf("<span>$</span> <span class=\"cmd\">%s\n</span>",$command);
+
+            if($this->is_command_allowed($command))
+            {
+                $sh_exec = htmlentities(trim(shell_exec($command)));
+                printf("  %s \n",$sh_exec);
+            } else
+            {
+                printf("  <span class=\"cmd-error\">Error: \"%s\" Command Not allowed </span>\n",$command);
+            }
+        }
     }
-  }
 
-  private function user_commands()
-  {
-    if(!empty($_GET['c']))
-      return explode(",",$_GET['c']);
+    private function user_commands()
+    {
+        if(!empty($_GET['c']))
+            return explode(",",$_GET['c']);
 
-    return array();
-  }
+        return array();
+    }
 
-  private function build_commands()
-  {
-    $c = $this->initial_commands;
-    $c = array_merge($c,$this->end_command);
-    $c = array_merge($c,$this->user_commands());
-    return $c;
-  }
+    private function build_commands()
+    {
+        $c = $this->initial_commands;
+        $c = array_merge($c,$this->end_command);
+        $c = array_merge($c,$this->user_commands());
+        return $c;
+    }
 
-  private function is_command_allowed($cmd)
-  {
-    return in_array(trim($cmd),$this->allowed_commands);
-  }
+    private function is_command_allowed($cmd)
+    {
+        return in_array(trim($cmd),$this->allowed_commands);
+    }
 }
-?>
-<?php
+
 $g = new GitDeploy;
 ?>
 <!DOCTYPE html>
@@ -119,18 +123,14 @@ $g = new GitDeploy;
 <meta charset="UTF-8">
 <title>Deploying <?php echo $g->app_name; ?></title>
 <style>
-  body{background-color: #292C37; color: #8DDCD1; padding: 0 20px;}
-  pre {color:#8DDCD1}
-  pre span {color: #FD7874;}
-  pre span.cmd{color: #fff;}
-  pre span.cmd-error{color:#CE0914;}
+body{background-color: #292C37; color: #8DDCD1; padding: 0 20px;}
+pre {color:#8DDCD1}
+pre span {color: #FD7874;}
+pre span.cmd{color: #fff;}
+pre span.cmd-error{color:#CE0914;}
 </style>
 </head>
 <body>
-<pre>
-<?php
-$g->go();
-?>
-</pre>
+    <pre><?php $g->go();?></pre>
 </body>
 </html>
